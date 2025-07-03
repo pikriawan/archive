@@ -1,0 +1,32 @@
+# Maintainer: Fikri Setiawan <fikrisetiawan2006@gmail.com>
+pkgname=libinput-config
+pkgver=r86.185c6cb
+pkgrel=1
+pkgdesc="Configuration system for libinput"
+arch=('x86_64')
+url="https://gitlab.com/warningnonpotablewater/libinput-config"
+license=(BSD)
+depends=(glibc libinput)
+makedepends=(git meson)
+source=("git+$url.git")
+sha256sums=('SKIP')
+
+pkgver() {
+	cd $pkgname
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+}
+
+build() {
+	arch-meson $pkgname build
+	meson compile -C build
+}
+
+check() {
+	meson test -C build --print-errorlogs
+}
+
+package() {
+	install -Dm644 /dev/null "$pkgdir/etc/ld.so.preload"
+	meson install -C build --destdir "$pkgdir"
+	install -Dm644 "$srcdir/libinput-config/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
