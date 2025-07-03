@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Instalasi Arch Linux</title>
+        <style>
+            body {
+                font-family: sans-serif;
+            }
+
+            .code-sample {
+                padding: 0.5rem;
+                background-color: #E7E7E7;
+                box-shadow: 0 0 0 0.0625rem #D1D1D1;
+                overflow: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Instalasi Arch Linux</h1>
+        <ol>
+            <li>
+                Persiapkan bahan di perangkat lain sebagai server penyedia file
+                <ol type="a">
+                    <li>archlinux-YYYY.MM.DD-x86_64.iso</li>
+                    <li>fonts.conf</li>
+                    <li>id_ed25519</li>
+                    <li>id_ed25519</li>
+                </ol>
+            </li>
+            <li>
+                Koneksi ke Wi-Fi
+                <pre class="code-sample"><code>iwctl station wlan0 connect &#39;Galaxy A05s&#39;</code></pre>
+            </li>
+            <li>
+                Partisi, format, dan mounting
+                <pre class="code-sample"><code>fdisk /dev/nvme0n1
+# Part         ID      Name              Mount point
+# nvme0n1p1    uefi    EFI System        /boot
+# nvme0n1p2    swap    Linux swap        [SWAP]
+# nvme0n1p3    linux   Linux filesystem  /
+
+mkfs.fat -F 32 /dev/nvme0n1p1
+mkswap /dev/nvme0n1p2
+mkfs.ext4 /dev/nvme0n1p3
+
+mount /dev/nvme0n1p3 /mnt
+mkdir /mnt/boot
+mount /dev/nvme0n1p1 /mnt/boot
+swapon /dev/nvme0n1p2</code></pre>
+            </li>
+            <li>
+                Mirrorlist
+                <pre class="code-sample"><code>curl &#39;https://archlinux.org/mirrorlist/?country=ID&amp;protocol=http&amp;protocol=https&amp;ip_version=4&#39; &gt; /etc/pacman.d/mirrorlist</code></pre>
+            </li>
+            <li>
+                Pacstrap
+                <pre class="code-sample"><code>pacman -Sy
+pacstrap -K /mnt base linux linux-firmware</code></pre>
+            </li>
+            <li>
+                Generate fstab
+                <pre class="code-sample"><code>genfstab -U /mnt &gt;&gt; /mnt/etc/fstab</code></pre>
+            </li>
+            <li>
+                Chroot
+                <pre class="code-sample"><code>arch-chroot /mnt</code></pre>
+            </li>
+            <li>
+                Atur timezone
+                <pre class="code-sample"><code>ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
+hwclock --systohc</code></pre>
+            </li>
+            <li>
+                Konfigurasi locale
+                <pre class="code-sample"><code>pacman -Syu
+pacman -S nano
+
+nano /etc/locale.gen
+# Hapus komentar &quot;en_US.UTF-8&quot;
+locale-gen
+
+echo LANG=en_US.UTF-8 &gt; /etc/locale.conf</code></pre>
+            </li>
+            <li>
+                Host
+                <pre class="code-sample"><code>echo arch &gt; /etc/hostname
+
+nano /etc/hosts
+# Tambahkan baris:
+# 127.0.1.1 arch</code></pre>
+            </li>
+            <li>
+                Membuat user
+                <pre class="code-sample"><code>pacman -S sudo
+useradd -m -G wheel user
+passwd user
+
+EDITOR=nano visudo
+# Hapus komentar %wheel ...</code></pre>
+            </li>
+            <li>
+                Install bootloader
+                <pre class="code-sample"><code>bootctl install</code></pre>
+            </li>
+            <li>
+                Download dan ekstrak Archiso untuk ditambahkan sebagai boot entry
+                <pre class="code-sample"><code># Ganti user ke user
+su user
+cd ~
+mkdir Downloads
+cd Downloads
+curl -o archlinux-YYYY.MM.DD-x86_64.iso 192.168.xxx.xxx:3000
+
+# Ganti user ke root
+exit
+
+mkdir /boot/EFI/archiso
+bsdtar -v -x --no-same-permissions --strip-components 1 -f archlinux-YYYY.MM.DD-x86_64.iso -C /boot/EFI/archiso arch
+
+cd /
+</code></pre>
+            </li>
+            <li>
+                Konfigurasi entry bootloader
+                <ol type="a">
+                    <li>
+                        /boot/loader/loader.conf
+                        <pre class="code-sample"><code>default arch.conf
+timeout 4
+console-mode max
+editor no</code></pre>
+                    </li>
+                    <li>
+                        /boot/loader/entries/arch.conf
+                        <pre class="code-sample"><code>title Arch Linux
+linux /vmlinuz-linux
+initrd /initramfs-linux.img
+options root=UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx rw quiet loglevel=3 systemd.show_status=auto rd.udev.log_level=3</code></pre>
+                    </li>
+                    <li>
+                        /boot/loader/entries/arch-fallback.conf
+                        <pre class="code-sample"><code>title Arch Linux (fallback initramfs)
+linux /vmlinuz-linux
+initrd /initramfs-linux-fallback.img
+options root=UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx rw</code></pre>
+                    </li>
+                    <li>
+                        /boot/loader/entries/arch-rescue.conf
+                        <pre class="code-sample"><code>title Arch Linux (rescue system)
+linux /EFI/archiso/boot/x86_64/vmlinuz-linux
+initrd /EFI/archiso/boot/x86_64/initramfs-linux.img
+options archisobasedir=/EFI/archiso archisosearchfilename=/EFI/archiso/boot/x86_64/vmlinuz-linux</code></pre>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                Update bootctl
+                <pre class="code-sample"><code>bootctl update</code></pre>
+            </li>
+            <li>
+                Silent boot
+                <pre class="code-sample"><code># /etc/mkinitcpio.conf
+# Tambahkan komentar ke: HOOKS=...
+# Tambahkan baris:
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems)
+
+# Regenerate mkinitcpio
+mkinitcpio -P</code></pre>
+            </li>
+            <li>
+                Network Manager dan Gnome
+                <pre class="code-sample"><code>pacman -S networkmanager gnome gnome-extra
+systemctl enable NetworkManager
+systemctl enable gdm</code></pre>
+            </li>
+            <li>
+                Install software
+                <pre class="code-sample"><code>pacman -S firefox zip unzip wget tree man-db audio-sharing libreoffice-still flatpak jdk-openjdk nodejs-lts-jod npm php apache php-apache mariadb git base-devel ttf-roboto ttf-roboto-mono ttf-roboto-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra</code></pre>
+            </li>
+            <li>
+                Install yay dan paket-paket dari AUR
+                <pre class="code-sample"><code>cd /tmp
+
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -sirc
+
+yay -S visual-studio-code-bin</code></pre>
+            </li>
+            <li>Reboot</li>
+            <li>Atur layout aplikasi</li>
+            <li>
+                Konfigurasi Visual Studio Code
+                <ol type="a">
+                    <li>Mark as done</li>
+                    <li>Hilangkan centang &quot;Show welcome page on startup&quot;</li>
+                    <li>Aktifkan word wrap</li>
+                </ol>
+            </li>
+            <li>
+                Konfigurasi Firefox
+                <ol type="a">
+                    <li>Masuk ke Firefox, skip hingga muncul beranda</li>
+                    <li>Ke pengaturan, atur sebagai default</li>
+                    <li>Keluar Firefox dan buka lagi, lakukan hingga widget cuaca muncul, konfigurasi widget, sembunyikan cuaca dan menu</li>
+                    <li>Keluar lalu masuk lagi</li>
+                    <li>Login Google, GitHub, dan WhatsApp</li>
+                </ol>
+            </li>
+            <li>
+                Konfigurasi font
+                <ol type="a">
+                    <li>Download fonts.conf dan pindahkan ke ~/.config/fontconfig/fonts.conf</li>
+                    <li>
+                        Update font cache
+                        <pre class="code-sample"><code>fc-cache</code></pre>
+                    </li>
+                    <li>Aktifkan font di gnome-tweaks</li>
+                </ol>
+            </li>
+            <li>Reboot</li>
+            <li>
+                Konfigurasi Git
+                <pre class="code-sample"><code>git config --global user.name "[name]"
+git config --global user.email "[email]"
+git config --global init.defaultBranch main</code></pre>
+            </li>
+            <li>
+                Konfigurasi GitHub SSH
+                <ol type="a">
+                    <li>
+                        Download SSH key dari backup
+                        <pre class="code-sample"><code>curl -o id_ed25519 192.168.xxx.xxx:3000
+curl -o id_ed25519.pub 192.168.xxx.xxx:3000
+mkdir .ssh
+mv id_ed25519 id_ed25519.pub .ssh</code></pre>
+                    </li>
+                    <li>
+                        Jalankan SSH
+                        <pre class="code-sample"><code>eval &quot;$(ssh-agent -s)&quot;</code></pre>
+                    </li>
+                    <li>
+                        Tambahkan SSH key
+                        <pre class="code-sample"><code>ssh-add ~/.ssh/id_ed25519</code></pre>
+                    </li>
+                    <li>
+                        Tes koneksi
+                        <pre class="code-sample"><code>ssh -T git@github.com</code></pre>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                Konfigurasi MariaDB
+                <ol type="a">
+                    <li>
+                        Install database
+                        <pre class="code-sample"><code>sudo mariadb-install-db --user=mysql --basedir=/usr --datadir=/var/lib/mysql</code></pre>
+                    </li>
+                    <li>
+                        Jalankan MariaDB dan tambahkan user
+                        <pre class="code-sample"><code>sudo systemctl start mariadb
+sudo mariadb -u root</code></pre>
+                        <pre class="code-sample"><code>CREATE USER &#39;admin&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;&#39;;
+GRANT ALL PRIVILEGES ON *.* TO &#39;admin&#39;@&#39;localhost&#39; WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+quit;</code></pre>
+                        <pre class="code-sample"><code>sudo systemctl stop mariadb</code></pre>
+                    </li>
+                </ol>
+            </li>
+            <li>
+                Konfigurasi PHP
+                <pre class="code-sample"><code># /etc/php/php.ini
+# Hilangkan komentar pada baris
+extension=mysqli</code></pre>
+            </li>
+            <li>
+                Konfigurasi Apache
+                <pre class="code-sample"><code># /etc/httpd/conf/httpd.conf
+...
+#LoadModule mpm_event_module modules/mod_mpm_event.so
+LoadModule mpm_prefork_module modules/mod_mpm_prefork.so
+...
+LoadModule php_module modules/libphp.so
+AddHandler php-script .php
+...
+Include conf/extra/php_module.conf</code></pre>
+            </li>
+            <li>
+                Finishing (update packages)
+                <pre class="code-sample"><code>yay -Syu</code></pre>
+            </li>
+            <li>Shutdown</li>
+        </ol>
+    </body>
+</html>
