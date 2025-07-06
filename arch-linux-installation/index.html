@@ -24,7 +24,6 @@
                 Persiapkan bahan di perangkat lain sebagai server penyedia file
                 <ol type="a">
                     <li>archlinux-YYYY.MM.DD-x86_64.iso</li>
-                    <li>fonts.conf</li>
                     <li>id_ed25519</li>
                     <li>id_ed25519</li>
                 </ol>
@@ -117,6 +116,7 @@ curl -o archlinux-YYYY.MM.DD-x86_64.iso 192.168.xxx.xxx:3000
 exit
 
 mkdir /boot/EFI/archiso
+cd /home/user/Downloads
 bsdtar -v -x --no-same-permissions --strip-components 1 -f archlinux-YYYY.MM.DD-x86_64.iso -C /boot/EFI/archiso arch
 
 cd /
@@ -128,7 +128,7 @@ cd /
                     <li>
                         /boot/loader/loader.conf
                         <pre class="code-sample"><code>default arch.conf
-timeout 4
+timeout 0
 console-mode max
 editor no</code></pre>
                     </li>
@@ -156,8 +156,10 @@ options archisobasedir=/EFI/archiso archisosearchfilename=/EFI/archiso/boot/x86_
                 </ol>
             </li>
             <li>
-                Update bootctl
-                <pre class="code-sample"><code>bootctl update</code></pre>
+                Update bootctl, cek boot entries, lalu reboot
+                <pre class="code-sample"><code>bootctl update
+bootctl list
+reboot</code></pre>
             </li>
             <li>
                 Silent boot
@@ -177,7 +179,7 @@ systemctl enable gdm</code></pre>
             </li>
             <li>
                 Install software
-                <pre class="code-sample"><code>pacman -S firefox zip unzip wget tree man-db audio-sharing libreoffice-still flatpak jdk-openjdk nodejs-lts-jod npm php apache php-apache mariadb git base-devel ttf-roboto ttf-roboto-mono ttf-roboto-mono-nerd noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra</code></pre>
+                <pre class="code-sample"><code>pacman -S firefox zip unzip wget tree man-db audio-sharing libreoffice-still flatpak jdk-openjdk nodejs-lts-jod npm php apache php-apache mariadb git base-devel noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra ttf-noto-nerd</code></pre>
             </li>
             <li>
                 Install yay dan paket-paket dari AUR
@@ -210,18 +212,6 @@ yay -S visual-studio-code-bin</code></pre>
                 </ol>
             </li>
             <li>
-                Konfigurasi font
-                <ol type="a">
-                    <li>Download fonts.conf dan pindahkan ke ~/.config/fontconfig/fonts.conf</li>
-                    <li>
-                        Update font cache
-                        <pre class="code-sample"><code>fc-cache</code></pre>
-                    </li>
-                    <li>Aktifkan font di gnome-tweaks</li>
-                </ol>
-            </li>
-            <li>Reboot</li>
-            <li>
                 Konfigurasi Git
                 <pre class="code-sample"><code>git config --global user.name "[name]"
 git config --global user.email "[email]"
@@ -240,6 +230,10 @@ mv id_ed25519 id_ed25519.pub .ssh</code></pre>
                     <li>
                         Jalankan SSH
                         <pre class="code-sample"><code>eval &quot;$(ssh-agent -s)&quot;</code></pre>
+                    </li>
+                    <li>
+                        Chmod SSH key
+                        <pre class="code-sample"><code>chmod 600 ~/.ssh/id_ed25519</code></pre>
                     </li>
                     <li>
                         Tambahkan SSH key
