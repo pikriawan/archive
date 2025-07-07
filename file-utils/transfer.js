@@ -32,7 +32,6 @@ server.listen(port, () => {
             if (entry.family == "IPv4" && !entry.internal) {
                 console.log(`${entry.address}:${port}`);
                 break loop;
-                break;
             }
         }
     }
