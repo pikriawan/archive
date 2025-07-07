@@ -4,11 +4,11 @@ const http = require("http");
 const os = require("os");
 const zlib = require("zlib");
 
-const partition = process.argv[2];
+const file = process.argv[2];
 const port = 3000;
 
-if (!partition) {
-    console.log("Partition required");
+if (!file) {
+    console.log("File required");
     process.exit(1);
 }
 
@@ -17,33 +17,22 @@ const server = http.createServer((req, res) => {
     res.setHeader("Content-Type", "application/octet-stream");
     res.setHeader("Content-Disposition", "attachment;filename=backup.img.gz");
 
-    const dd = child_process.spawn("dd", ["if=" + partition]);
-    const zip = zlib.createGzip();
-
-    dd
-        .stdout
-        .pipe(zip)
-        .on("error", (err) => {
-            console.error("Gunzip error: ", err);
-            res.statusCode = 500;
-            res.end("Internal server error");
-        })
-        .pipe(res);
+    const dd = child_process.spawn("dd", [`if=${file}`]);
+    const gzip = zlib.createGzip();
+    dd.stdout.pipe(gzip).pipe(res);
 });
 
 server.listen(port, () => {
     const interfaces = os.networkInterfaces();
     const names = Object.keys(interfaces);
 
-    console.log("Partition: " + partition);
-    console.log("Port: " + port);
-    console.log("Addresses:");
-
-    for (const name of names) {
-        console.log("  - " + name + ":");
-
+    loop: for (const name of names) {
         for (const entry of interfaces[name]) {
-            console.log("    - " + entry.address);
+            if (entry.family == "IPv4" && !entry.internal) {
+                console.log(`${entry.address}:${port}`);
+                break loop;
+                break;
+            }
         }
     }
 });

@@ -4,10 +4,10 @@ const os = require("os");
 const zlib = require("zlib");
 
 const port = 3000;
-const backupFile = process.argv[2];
+const file = process.argv[2];
 
-if (!fs.existsSync(backupFile)) {
-    console.log("File doesn't exists");
+if (!fs.existsSync(file)) {
+    console.log("File doesn't exist");
     process.exit(1);
 }
 
@@ -15,37 +15,23 @@ const server = http.createServer((req, res) => {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/octet-stream");
 
-    const readStream = fs.createReadStream(backupFile);
-    const unzip = zlib.createGunzip();
+    const readStream = fs.createReadStream(file);
+    const gunzip = zlib.createGunzip();
 
-    readStream
-        .on("error", (err) => {
-            console.log("Read error: ". err);
-            res.statusCode = 500;
-            res.end("Internal server error");
-        })
-        .pipe(unzip)
-        .on("error", (err) => {
-            console.error("Gunzip error: ", err);
-            res.statusCode = 500;
-            res.end("Internal server error");
-        })
-        .pipe(res);
+    readStream.pipe(gunzip).pipe(res);
 });
 
 server.listen(port, () => {
     const interfaces = os.networkInterfaces();
     const names = Object.keys(interfaces);
 
-    console.log("File: " + backupFile);
-    console.log("Port: " + port);
-    console.log("Addresses:");
-
-    for (const name of names) {
-        console.log("  - " + name + ":");
-
+    loop: for (const name of names) {
         for (const entry of interfaces[name]) {
-            console.log("    - " + entry.address);
+            if (entry.family == "IPv4" && !entry.internal) {
+                console.log(`${entry.address}:${port}`);
+                break loop;
+                break;
+            }
         }
     }
 });
