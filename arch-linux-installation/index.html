@@ -159,14 +159,10 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 mkinitcpio -P</code></pre>
             </li>
             <li>
-                Network Manager dan Gnome
-                <pre class="code-sample"><code>pacman -S networkmanager gnome
+                Install Network Manager dan paket-paket Gnome
+                <pre class="code-sample"><code>pacman -S networkmanager baobab decibels gdm gnome-backgrounds gnome-calculator gnome-calendar gnome-clocks gnome-color-manager gnome-console gnome-control-center gnome-disk-utility gnome-font-viewer gnome-keyring gnome-music gnome-session gnome-settings-daemon gnome-shell gnome-system-monitor gnome-weather gvfs gvfs-afc gvfs-dnssd gvfs-goa gvfs-google gvfs-gphoto2 gvfs-mtp gvfs-nfs gvfs-onedrive gvfs-smb gvfs-wsdd loupe nautilus snapshot tecla totem xdg-desktop-portal-gnome xdg-user-dirs-gtk yelp
 systemctl enable NetworkManager
 systemctl enable gdm</code></pre>
-            </li>
-            <li>
-                Uninstall gnome-software
-                <pre class="code-sample"><code>pacman -Rns gnome-software</code></pre>
             </li>
             <li>
                 Install software
@@ -186,24 +182,16 @@ yay -S visual-studio-code-bin</code></pre>
             <li>Atur brightness ke 4</li>
             <li>Atur volume ke 1</li>
             <li>Logout, atur volume gdm ke 1, login</li>
-            <li>
-                Konfigurasi Gnome Software
-                <ol type="a">
-                    <li>Pergi ke Software &gt; Menu (garis tiga kanan atas) &gt; Preferences</li>
-                    <li>Ubah Software Updates ke Manual</li>
-                    <li>Nonaktifkan Automatic Update Notifications</li>
-                </ol>
-            </li>
             <li>Aktifkan Lokasi di Settings &gt; Privacy &amp; Security &gt; Location &gt; Automatic Device Location</li>
             <li>
                 Konfigurasi Geoclue
                 <ol type="a">
                     <li>
                         Buat file /etc/geolocation
-                        <pre class="code-sample"><code>-7.668529965935783&#9;# latitude
-109.92504366912608&#9;# longitude
-100&#9;&#9;&#9;# altitude
-100&#9;&#9;&#9;# accuracy radius (the diameter of the torch is 12 feet)</code></pre>
+                        <pre class="code-sample"><code>-7.6685299&#9;# latitude
+109.9250436&#9;# longitude
+100&#9;&#9;# altitude
+100&#9;&#9;# accuracy radius (the diameter of the torch is 12 feet)</code></pre>
                     </li>
                     <li>
                         Ubah permission
@@ -287,6 +275,9 @@ mv id_ed25519 id_ed25519.pub .ssh</code></pre>
                 </ol>
             </li>
             <li>
+                Install http-server
+                <pre class="code-sample"><code>sudo npm i -g http-server</code></pre>
+            <li>
                 Konfigurasi MariaDB
                 <ol type="a">
                     <li>
@@ -329,5 +320,8 @@ Include conf/extra/php_module.conf</code></pre>
             </li>
             <li>Shutdown</li>
         </ol>
+        <script>
+            navigator.wakeLock.request("screen");
+        </script>
     </body>
 </html>
