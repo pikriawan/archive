@@ -105,22 +105,9 @@ EDITOR=nano visudo
             </li>
             <li>
                 Download dan ekstrak Archiso untuk ditambahkan sebagai boot entry
-                <pre class="code-sample"><code># Ganti user ke user
-su user
-cd ~
-mkdir Downloads
-cd Downloads
-curl -o archlinux-YYYY.MM.DD-x86_64.iso 192.168.xxx.xxx:3000
-
-# Ganti user ke root
-exit
-
-mkdir /boot/EFI/archiso
-cd /home/user/Downloads
+                <pre class="code-sample"><code>curl -o archlinux-YYYY.MM.DD-x86_64.iso 192.168.xxx.xxx:3000
 bsdtar -v -x --no-same-permissions --strip-components 1 -f archlinux-YYYY.MM.DD-x86_64.iso -C /boot/EFI/archiso arch
-
-cd /
-</code></pre>
+rm archlinux-YYYY.MM.DD-x86_64.iso</code></pre>
             </li>
             <li>
                 Konfigurasi entry bootloader
@@ -192,7 +179,51 @@ makepkg -sirc
 yay -S visual-studio-code-bin</code></pre>
             </li>
             <li>Reboot</li>
-            <li>Atur layout aplikasi</li>
+            <li>Aktifkan Lokasi di Settings &gt; Privacy &amp; Security &gt; Location &gt; Automatic Device Location</li>
+            <li>
+                Konfigurasi Geoclue
+                <ol type="a">
+                    <li>
+                        Buat file /etc/geolocation
+                        <pre class="code-sample"><code>-7.668529965935783&#9;# latitude
+109.92504366912608&#9;# longitude
+100&#9;&#9;&#9;# altitude
+100&#9;&#9;&#9;# accuracy radius (the diameter of the torch is 12 feet)</code></pre>
+                    </li>
+                    <li>
+                        Ubah permission
+                        <pre class="code-sample"><code>chown geoclue /etc/geolocation
+chmod 600 /etc/geolocation</code></pre>
+                    </li>
+                </ol>
+            </li>
+            <li>Atur brightness ke 4</li>
+            <li>Atur volume ke 1</li>
+            <li>Logout, atur volume gdm ke 1, login</li>
+            <li>
+                Atur volume microphone
+                <ol type="a">
+                    <li>Pergi ke Settings &gt; Sound</li>
+                    <li>Pada bagian input &gt; Input Volume, atur ke minimum, lalu klik ikon microphone</li>
+                </ol>
+            </li>
+            <li>
+                Urutkan aplikasi secara alfabetis
+                <pre class="code-sample"><code>gsettings set org.gnome.shell app-picker-layout &quot;[]&quot;</code></pre>
+            </li>
+            <li>Reboot</li>
+            <li>Ubah posisi salah satu aplikasi lalu kembalikan lagi</li>
+            <li>
+                Konfigurasi Firefox
+                <ol type="a">
+                    <li>Masuk ke Firefox, skip hingga muncul beranda</li>
+                    <li>Ke Settings &gt; General &gt; Startup &gt; Make Default...</li>
+                    <li>Ke Settings &gt; Privacy &amp; Security &gt; History &gt; Firefox will &gt; Use custom settings for history, uncheck Remember search and form history</li>
+                    <li>Keluar Firefox dan buka lagi, lakukan hingga widget cuaca muncul, konfigurasi widget, sembunyikan cuaca dan menu</li>
+                    <li>Keluar lalu masuk lagi</li>
+                    <li>Login Google, GitHub, dan WhatsApp</li>
+                </ol>
+            </li>
             <li>
                 Konfigurasi Visual Studio Code
                 <ol type="a">
@@ -202,13 +233,11 @@ yay -S visual-studio-code-bin</code></pre>
                 </ol>
             </li>
             <li>
-                Konfigurasi Firefox
+                Konfigurasi LibreOffice
                 <ol type="a">
-                    <li>Masuk ke Firefox, skip hingga muncul beranda</li>
-                    <li>Ke pengaturan, atur sebagai default</li>
-                    <li>Keluar Firefox dan buka lagi, lakukan hingga widget cuaca muncul, konfigurasi widget, sembunyikan cuaca dan menu</li>
-                    <li>Keluar lalu masuk lagi</li>
-                    <li>Login Google, GitHub, dan WhatsApp</li>
+                    <li>Ke Tools &gt; Options... &gt; Advanced &gt; Open Expert Configuration</li>
+                    <li>Cari org.openoffice.Office.Common &gt; History &gt; PickListSize</li>
+                    <li>Ubah PickListSize menjadi 0</li>
                 </ol>
             </li>
             <li>
