@@ -160,13 +160,17 @@ mkinitcpio -P</code></pre>
             </li>
             <li>
                 Network Manager dan Gnome
-                <pre class="code-sample"><code>pacman -S networkmanager gnome gnome-extra
+                <pre class="code-sample"><code>pacman -S networkmanager gnome
 systemctl enable NetworkManager
 systemctl enable gdm</code></pre>
             </li>
             <li>
+                Uninstall gnome-software
+                <pre class="code-sample"><code>pacman -Rns gnome-software</code></pre>
+            </li>
+            <li>
                 Install software
-                <pre class="code-sample"><code>pacman -S firefox zip unzip wget tree man-db audio-sharing libreoffice-still flatpak jdk-openjdk nodejs-lts-jod npm php apache php-apache mariadb git base-devel noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra ttf-noto-nerd</code></pre>
+                <pre class="code-sample"><code>pacman -S firefox zip unzip wget tree man-db audio-sharing libreoffice-still jdk-openjdk nodejs-lts-jod npm php apache php-apache mariadb git base-devel noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra ttf-noto-nerd</code></pre>
             </li>
             <li>
                 Install yay dan paket-paket dari AUR
@@ -179,6 +183,17 @@ makepkg -sirc
 yay -S visual-studio-code-bin</code></pre>
             </li>
             <li>Reboot</li>
+            <li>Atur brightness ke 4</li>
+            <li>Atur volume ke 1</li>
+            <li>Logout, atur volume gdm ke 1, login</li>
+            <li>
+                Konfigurasi Gnome Software
+                <ol type="a">
+                    <li>Pergi ke Software &gt; Menu (garis tiga kanan atas) &gt; Preferences</li>
+                    <li>Ubah Software Updates ke Manual</li>
+                    <li>Nonaktifkan Automatic Update Notifications</li>
+                </ol>
+            </li>
             <li>Aktifkan Lokasi di Settings &gt; Privacy &amp; Security &gt; Location &gt; Automatic Device Location</li>
             <li>
                 Konfigurasi Geoclue
@@ -197,9 +212,6 @@ chmod 600 /etc/geolocation</code></pre>
                     </li>
                 </ol>
             </li>
-            <li>Atur brightness ke 4</li>
-            <li>Atur volume ke 1</li>
-            <li>Logout, atur volume gdm ke 1, login</li>
             <li>
                 Atur volume microphone
                 <ol type="a">
