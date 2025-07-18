@@ -1,0 +1,1 @@
+gdm gnome-console gnome-control-center gnome-shell gvfs-mtp
